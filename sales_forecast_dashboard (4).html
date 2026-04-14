@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sales Analytics & Demand Forecasting — FUTURE_DS_01</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#f9fafb;--ink2:#d1d5db;--ink3:#6b7280;
+  --bg:#080b14;--bg2:rgba(13,17,35,0.85);--bg3:rgba(17,24,39,0.9);
+  --border:rgba(99,102,241,0.12);--border2:rgba(99,102,241,0.22);
+  --red:#f87171;--green:#34d399;--blue:#60a5fa;--gold:#fbbf24;
+  --purple:#a78bfa;--pink:#f472b6;--orange:#fb923c;--cyan:#22d3ee;
+  --indigo:#6366f1;--indigo2:#818cf8;
+  --ff:'Inter',sans-serif;--ff-mono:'JetBrains Mono',monospace;
+  --radius:14px;--radius-sm:8px;
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--ink);font-family:var(--ff);-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.3);border-radius:99px}
+
+.shell{max-width:1240px;margin:0 auto;padding:28px 24px 60px}
+
+/* ── Separator ── */
+.sep{height:1px;background:linear-gradient(90deg,rgba(99,102,241,0.6),rgba(6,182,212,0.3),transparent);margin:18px 0}
+
+/* ── Masthead ── */
+.masthead{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:6px}
+.masthead-left{display:flex;align-items:center;gap:14px}
+.logo-pill{width:46px;height:46px;border-radius:12px;
+           background:linear-gradient(135deg,#6366f1,#22d3ee);
+           display:flex;align-items:center;justify-content:center;font-size:1.4rem;
+           box-shadow:0 8px 24px rgba(99,102,241,0.4)}
+.masthead h1{font-size:1.75rem;font-weight:800;letter-spacing:-0.03em;
+             background:linear-gradient(135deg,#f9fafb 0%,#93c5fd 100%);
+             -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.masthead-sub{font-family:var(--ff-mono);font-size:10px;color:var(--ink3);margin-top:3px;
+              text-transform:uppercase;letter-spacing:1.5px}
+.masthead-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.badge-live{font-family:var(--ff-mono);font-size:9px;font-weight:500;letter-spacing:1px;text-transform:uppercase;
+            background:linear-gradient(135deg,#6366f1,#22d3ee);color:#fff;padding:4px 14px;
+            border-radius:99px;display:inline-flex;align-items:center;gap:6px;
+            box-shadow:0 4px 12px rgba(99,102,241,0.4)}
+.badge-live::before{content:'';width:6px;height:6px;background:#fff;border-radius:50%;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.period{font-family:var(--ff-mono);font-size:10px;color:var(--ink3)}
+
+/* ── Section header ── */
+.section-hdr{display:flex;align-items:center;gap:8px;font-size:10px;font-family:var(--ff-mono);
+             font-weight:500;color:var(--ink3);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:14px}
+.section-hdr::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(99,102,241,0.3),transparent)}
+.section-hdr .tag{font-size:9px;background:rgba(99,102,241,0.1);border:1px solid var(--border2);
+                  padding:1px 8px;border-radius:99px;color:var(--indigo2);text-transform:uppercase;letter-spacing:0.5px}
+
+/* ── KPI Cards ── */
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px}
+@media(max-width:700px){.metrics{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:380px){.metrics{grid-template-columns:1fr}}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+        padding:16px 18px;position:relative;overflow:hidden;backdrop-filter:blur(12px)}
+.metric::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--radius) var(--radius) 0 0}
+.metric::after{content:'';position:absolute;bottom:-24px;right:-24px;width:80px;height:80px;border-radius:50%;opacity:0.05}
+.metric.c0::before{background:linear-gradient(90deg,#60a5fa,#93c5fd)} .metric.c0::after{background:#60a5fa}
+.metric.c1::before{background:linear-gradient(90deg,#34d399,#6ee7b7)} .metric.c1::after{background:#34d399}
+.metric.c2::before{background:linear-gradient(90deg,#fbbf24,#fcd34d)} .metric.c2::after{background:#fbbf24}
+.metric.c3::before{background:linear-gradient(90deg,#a78bfa,#c4b5fd)} .metric.c3::after{background:#a78bfa}
+.metric-icon{font-size:1rem;margin-bottom:6px}
+.metric-label{font-family:var(--ff-mono);font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:1.2px;font-weight:500}
+.metric-value{font-size:2rem;font-weight:800;margin:4px 0 2px;line-height:1;letter-spacing:-0.03em;color:var(--ink)}
+.metric-sub{font-family:var(--ff-mono);font-size:10px;font-weight:500;margin-top:2px}
+.up{color:var(--green)}.down{color:var(--red)}.neutral{color:var(--ink3)}
+
+/* ── Insight band ── */
+.insight-band{background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.15);
+              border-left:3px solid var(--indigo);border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+              padding:12px 16px;margin-bottom:20px}
+.insight-band p{font-size:12.5px;color:var(--ink2);line-height:1.8}
+.insight-band strong{color:var(--ink);font-weight:700}
+
+/* ── Chart cards ── */
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+            padding:18px;margin-bottom:14px;backdrop-filter:blur(10px)}
+.chart-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.chart-title{font-size:13px;font-weight:600;color:var(--ink)}
+
+/* ── Legend ── */
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-family:var(--ff-mono);font-size:10px;color:var(--ink3)}
+.legend span{display:flex;align-items:center;gap:5px}
+.dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+
+/* ── Two-column grid ── */
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:14px}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:5px;padding:4px;background:rgba(17,24,39,0.8);border:1px solid var(--border);
+      border-radius:var(--radius-sm);width:fit-content;margin-bottom:16px}
+.tab{padding:6px 16px;border-radius:6px;border:none;font-size:11px;font-family:var(--ff-mono);font-weight:500;
+     cursor:pointer;background:transparent;color:var(--ink3);transition:all .2s;text-transform:uppercase;letter-spacing:0.5px}
+.tab:hover:not(.active){color:var(--ink);background:rgba(99,102,241,0.08)}
+.tab.active{background:linear-gradient(135deg,#6366f1,#22d3ee);color:#fff;
+            box-shadow:0 4px 12px rgba(99,102,241,0.35)}
+
+/* ── Forecast table ── */
+.forecast-table{width:100%;font-size:12px;border-collapse:collapse;font-family:var(--ff-mono)}
+.forecast-table th{text-align:left;font-weight:500;font-size:9px;color:var(--ink3);text-transform:uppercase;
+                   letter-spacing:1px;padding:8px 10px;border-bottom:1px solid var(--border)}
+.forecast-table td{padding:9px 10px;border-bottom:1px solid rgba(99,102,241,0.07);color:var(--ink2)}
+.forecast-table tr:last-child td{border-bottom:none}
+.forecast-table tbody tr:hover{background:rgba(99,102,241,0.05)}
+.trend-up{color:var(--green);font-weight:600}.trend-down{color:var(--red);font-weight:600}
+
+/* ── Heatmap ── */
+.heatrow{display:grid;grid-template-columns:56px repeat(12,1fr);gap:2px;margin-bottom:2px}
+.hcell{height:32px;border-radius:5px;display:flex;align-items:center;justify-content:center;
+       font-size:10px;font-weight:600;font-family:var(--ff-mono);transition:opacity .15s;cursor:default}
+.hcell:hover{opacity:0.8}
+.hlabel{display:flex;align-items:center;font-size:10px;font-family:var(--ff-mono);color:var(--ink3);font-weight:500}
+.heat-legend{display:flex;gap:8px;align-items:center;margin-top:12px;font-family:var(--ff-mono);font-size:10px;color:var(--ink3)}
+.heat-legend-bar{display:flex;gap:2px}
+.heat-swatch{width:24px;height:12px;border-radius:3px}
+
+/* ── Recommendation lists ── */
+.rec-list{list-style:none}
+.rec-list li{display:flex;gap:10px;align-items:flex-start;padding:10px 0;
+             border-bottom:1px solid rgba(99,102,241,0.07);font-size:12.5px;color:var(--ink2);line-height:1.65}
+.rec-list li:last-child{border-bottom:none}
+.rec-badge{display:inline-flex;align-items:center;justify-content:center;
+           width:22px;height:22px;border-radius:50%;font-size:10px;font-weight:700;
+           flex-shrink:0;font-family:var(--ff-mono);margin-top:1px}
+.badge-inv{background:rgba(96,165,250,0.15);color:var(--blue);border:1px solid rgba(96,165,250,0.25)}
+.badge-mkt{background:rgba(52,211,153,0.15);color:var(--green);border:1px solid rgba(52,211,153,0.25)}
+
+/* ── Footer ── */
+.footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--border);
+        font-family:var(--ff-mono);font-size:9px;color:var(--ink3);
+        display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;line-height:2}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ── Masthead ── -->
+<div class="masthead">
+  <div class="masthead-left">
+    <div class="logo-pill">📈</div>
+    <div>
+      <h1>Sales Analytics &amp; Demand Forecast</h1>
+      <div class="masthead-sub">Historical analysis 2022–2024 · 6-month forward forecast · Inventory &amp; Marketing</div>
+    </div>
+  </div>
+  <div class="masthead-right">
+    <span class="badge-live">Model Active</span>
+    <div class="period">Jan 2022 – Dec 2024 · FUTURE_DS_01</div>
+  </div>
+</div>
+
+<div class="sep"></div>
+
+<!-- ── KPIs ── -->
+<div class="section-hdr">Key Performance Indicators <span class="tag">Full year 2024</span></div>
+<div class="metrics">
+  <div class="metric c0">
+    <div class="metric-icon">💰</div>
+    <div class="metric-label">Total Revenue (2024)</div>
+    <div class="metric-value">$4.82M</div>
+    <div class="metric-sub up">▲ 12.4% vs 2023</div>
+  </div>
+  <div class="metric c1">
+    <div class="metric-icon">📦</div>
+    <div class="metric-label">Units Sold (2024)</div>
+    <div class="metric-value">38,460</div>
+    <div class="metric-sub up">▲ 9.1% vs 2023</div>
+  </div>
+  <div class="metric c2">
+    <div class="metric-icon">🛒</div>
+    <div class="metric-label">Avg Order Value</div>
+    <div class="metric-value">$125.3</div>
+    <div class="metric-sub up">▲ 3.0% vs 2023</div>
+  </div>
+  <div class="metric c3">
+    <div class="metric-icon">🎯</div>
+    <div class="metric-label">Forecast Accuracy</div>
+    <div class="metric-value">91.2%</div>
+    <div class="metric-sub neutral">MAE: 8.8%</div>
+  </div>
+</div>
+
+<!-- ── Insight ── -->
+<div class="insight-band">
+  <p><strong>⚡ Key Insight:</strong> Q4 (Oct–Dec) consistently contributes <strong>~38%</strong> of annual revenue across all three years. The seasonal index peaks at <strong>1.55×</strong> in November. Feb is the weakest month at <strong>0.72×</strong> baseline demand — ideal for off-peak promotions.</p>
+</div>
+
+<!-- ── Revenue trend ── -->
+<div class="section-hdr">Revenue Trends <span class="tag">Monthly &amp; Yearly</span></div>
+<div class="chart-card">
+  <div class="chart-header">
+    <span class="chart-title">Monthly Revenue 2022–2024 with 6-Month Forecast</span>
+    <div class="legend">
+      <span><span class="dot" style="background:#60a5fa"></span>2022</span>
+      <span><span class="dot" style="background:#34d399"></span>2023</span>
+      <span><span class="dot" style="background:#a78bfa"></span>2024</span>
+      <span><span class="dot" style="background:#fb923c;opacity:.9"></span>Forecast 2025</span>
+    </div>
+  </div>
+  <div style="position:relative;height:280px">
+    <canvas id="revChart"></canvas>
+  </div>
+</div>
+
+<!-- ── YoY + Category ── -->
+<div class="grid2">
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-title">Year-over-Year Growth (2024 vs 2023)</span>
+    </div>
+    <div style="position:relative;height:230px">
+      <canvas id="yoyChart"></canvas>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-header">
+      <span class="chart-title">Revenue by Category — 2024</span>
+    </div>
+    <div style="position:relative;height:175px">
+      <canvas id="catChart"></canvas>
+    </div>
+    <div class="legend" style="margin-top:12px;justify-content:center">
+      <span><span class="dot" style="background:#60a5fa"></span>Electronics 38%</span>
+      <span><span class="dot" style="background:#34d399"></span>Apparel 27%</span>
+      <span><span class="dot" style="background:#fb923c"></span>Home 22%</span>
+      <span><span class="dot" style="background:#fbbf24"></span>Other 13%</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Seasonality ── -->
+<div class="section-hdr">Seasonality Analysis</div>
+<div class="chart-card">
+  <div class="chart-header">
+    <span class="chart-title">Seasonal Demand Index by Month (baseline = 1.0)</span>
+    <div class="legend">
+      <span><span class="dot" style="background:#6366f1"></span>Above average (peak)</span>
+      <span><span class="dot" style="background:#4b5563"></span>Below average (trough)</span>
+    </div>
+  </div>
+  <div style="position:relative;height:210px">
+    <canvas id="seaChart"></canvas>
+  </div>
+</div>
+
+<!-- ── Heatmap ── -->
+<div class="chart-card">
+  <div class="chart-header">
+    <span class="chart-title">Demand Heatmap — Units Sold by Month &amp; Year</span>
+  </div>
+  <div id="heatmap"></div>
+  <div class="heat-legend">
+    <span>Low</span>
+    <div class="heat-legend-bar">
+      <div class="heat-swatch" style="background:rgba(99,102,241,0.15)"></div>
+      <div class="heat-swatch" style="background:rgba(99,102,241,0.35)"></div>
+      <div class="heat-swatch" style="background:rgba(99,102,241,0.55)"></div>
+      <div class="heat-swatch" style="background:rgba(99,102,241,0.75)"></div>
+      <div class="heat-swatch" style="background:rgba(99,102,241,0.95)"></div>
+    </div>
+    <span>High</span>
+  </div>
+</div>
+
+<!-- ── Forecast ── -->
+<div class="section-hdr">Demand Forecast <span class="tag">Next 6 Months</span></div>
+<div class="chart-card">
+  <div class="tabs" id="forecastTabs">
+    <button class="tab active" onclick="switchForecastTab('table',this)">Table View</button>
+    <button class="tab"        onclick="switchForecastTab('chart',this)">Chart View</button>
+  </div>
+
+  <div id="forecastTableWrap">
+    <table class="forecast-table">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Forecast Units</th>
+          <th>Forecast Revenue</th>
+          <th>Lower Bound (−10%)</th>
+          <th>Upper Bound (+10%)</th>
+          <th>vs Prev Month</th>
+        </tr>
+      </thead>
+      <tbody id="ftbody"></tbody>
+    </table>
+  </div>
+
+  <div id="forecastChartWrap" style="display:none;position:relative;height:260px">
+    <canvas id="fcChart"></canvas>
+  </div>
+</div>
+
+<!-- ── Recommendations ── -->
+<div class="section-hdr">Recommendations</div>
+<div class="grid2">
+  <div class="chart-card">
+    <div class="section-hdr" style="margin-bottom:12px">📦 Inventory <span class="tag">5 actions</span></div>
+    <ul class="rec-list">
+      <li><span class="rec-badge badge-inv">1</span>Build 15–20% safety stock above forecast for Oct–Dec to handle Q4 demand surge (seasonal index 1.38–1.55).</li>
+      <li><span class="rec-badge badge-inv">2</span>Reduce Electronics inventory by 10% in Feb–Mar — historically slowest months (index 0.72–0.78).</li>
+      <li><span class="rec-badge badge-inv">3</span>Set reorder point at 3-week lead time for top 20% of SKUs contributing 80% of revenue.</li>
+      <li><span class="rec-badge badge-inv">4</span>Liquidate slow-moving Apparel SKUs in January via clearance to free up working capital.</li>
+      <li><span class="rec-badge badge-inv">5</span>Recalculate safety stock monthly using a rolling 3-month demand variance to stay adaptive.</li>
+    </ul>
+  </div>
+  <div class="chart-card">
+    <div class="section-hdr" style="margin-bottom:12px">📣 Marketing <span class="tag">5 actions</span></div>
+    <ul class="rec-list">
+      <li><span class="rec-badge badge-mkt">1</span>Launch Q4 campaigns by Oct 1 — early shoppers account for ~34% of total holiday revenue.</li>
+      <li><span class="rec-badge badge-mkt">2</span>Increase ad spend 25% in Sep–Nov to capture demand uplift; ROI peaks during seasonal highs.</li>
+      <li><span class="rec-badge badge-mkt">3</span>Run off-peak promotions in Feb–Mar to smooth demand troughs and improve resource utilisation.</li>
+      <li><span class="rec-badge badge-mkt">4</span>Focus cross-sell campaigns on Electronics buyers — highest LTV segment with 38% revenue share.</li>
+      <li><span class="rec-badge badge-mkt">5</span>Trigger email re-engagement for lapsed customers in August, 8 weeks before seasonal ramp-up.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── Footer ── -->
+<div class="footer">
+  <span>Data period: Jan 2022 – Dec 2024 &nbsp;·&nbsp; Forecast model: seasonal decomposition + linear trend &nbsp;·&nbsp; FUTURE_DS_01</span>
+  <span>Generated: <span id="genDate"></span></span>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ── Data ── */
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const rev2022 = [280,245,310,330,355,340,370,390,410,480,520,610];
+const rev2023 = [310,270,345,370,395,385,415,440,460,545,595,695];
+const rev2024 = [350,305,390,415,445,430,470,495,520,615,670,780];
+const forecast6Units = [2560,2240,2850,3020,3240,3140];
+const forecast6Rev   = [321,281,357,378,406,393];
+const forecast6Labels = ['Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25'];
+const seaIdx = [0.82,0.72,0.88,0.95,1.05,1.02,1.08,1.12,1.18,1.38,1.55,1.48];
+const heatData = {
+  '2022':[1820,1590,2010,2140,2300,2210,2400,2530,2660,3120,3380,3960],
+  '2023':[2010,1750,2240,2400,2570,2500,2700,2860,2990,3540,3870,4510],
+  '2024':[2270,1980,2530,2700,2890,2800,3050,3220,3380,3990,4350,5070],
+};
+
+/* ── Chart defaults ── */
+Chart.defaults.color = '#6b7280';
+Chart.defaults.borderColor = 'rgba(99,102,241,0.08)';
+Chart.defaults.font.family = "'JetBrains Mono', monospace";
+Chart.defaults.font.size   = 10;
+const gridColor = 'rgba(99,102,241,0.08)';
+
+function alpha(hex, a) {
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+/* ── 1. Revenue trend ── */
+(() => {
+  const allLabels = MONTHS.map(m=>m+' 22')
+    .concat(MONTHS.map(m=>m+' 23'))
+    .concat(MONTHS.map(m=>m+' 24'))
+    .concat(forecast6Labels);
+  const pad = (arr,before,after) => Array(before).fill(null).concat(arr).concat(Array(after).fill(null));
+  new Chart(document.getElementById('revChart'), {
+    type:'line',
+    data:{
+      labels:allLabels,
+      datasets:[
+        { label:'2022',     data:pad(rev2022,0,18),  borderColor:'#60a5fa', borderWidth:2,   pointRadius:0, tension:.4, spanGaps:false },
+        { label:'2023',     data:pad(rev2023,12,6),  borderColor:'#34d399', borderWidth:2,   pointRadius:0, tension:.4, spanGaps:false },
+        { label:'2024',     data:pad(rev2024,24,6),  borderColor:'#a78bfa', borderWidth:2.5, pointRadius:0, tension:.4, spanGaps:false },
+        { label:'Forecast', data:Array(36).fill(null).concat([rev2024[11]]).concat(forecast6Rev),
+          borderColor:'#fb923c', borderWidth:2, borderDash:[6,4], pointRadius:0, tension:.4,
+          spanGaps:false, backgroundColor:'rgba(251,146,60,0.06)', fill:true }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ ticks:{font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:18}, grid:{display:false} },
+        y:{ ticks:{font:{size:10},callback:v=>'$'+Math.round(v)+'K'}, grid:{color:gridColor} }
+      }
+    }
+  });
+})();
+
+/* ── 2. YoY ── */
+(() => {
+  const yoy = rev2024.map((v,i) => parseFloat(((v-rev2023[i])/rev2023[i]*100).toFixed(1)));
+  new Chart(document.getElementById('yoyChart'), {
+    type:'bar',
+    data:{
+      labels:MONTHS,
+      datasets:[{
+        label:'YoY %', data:yoy,
+        backgroundColor:yoy.map(v=>v>=0?'rgba(52,211,153,0.6)':'rgba(248,113,113,0.6)'),
+        borderColor:yoy.map(v=>v>=0?'#34d399':'#f87171'),
+        borderWidth:1, borderRadius:5
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ ticks:{font:{size:10}}, grid:{display:false} },
+        y:{ ticks:{font:{size:10},callback:v=>v+'%'}, grid:{color:gridColor} }
+      }
+    }
+  });
+})();
+
+/* ── 3. Category donut ── */
+(() => {
+  new Chart(document.getElementById('catChart'), {
+    type:'doughnut',
+    data:{
+      labels:['Electronics','Apparel','Home','Other'],
+      datasets:[{
+        data:[38,27,22,13],
+        backgroundColor:['#60a5fa','#34d399','#fb923c','#fbbf24'],
+        borderWidth:3, borderColor:'rgba(13,17,35,0.9)'
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      cutout:'68%'
+    }
+  });
+})();
+
+/* ── 4. Seasonality ── */
+(() => {
+  new Chart(document.getElementById('seaChart'), {
+    type:'bar',
+    data:{
+      labels:MONTHS,
+      datasets:[{
+        label:'Seasonal index', data:seaIdx,
+        backgroundColor:seaIdx.map(v=>v>=1?'rgba(99,102,241,0.65)':'rgba(75,85,99,0.5)'),
+        borderColor:seaIdx.map(v=>v>=1?'#6366f1':'#4b5563'),
+        borderWidth:1, borderRadius:5
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ ticks:{font:{size:10}}, grid:{display:false} },
+        y:{ min:0.4, ticks:{font:{size:10},callback:v=>v.toFixed(2)}, grid:{color:gridColor},
+            title:{display:true,text:'Index (1.0 = avg)',font:{size:10}} }
+      }
+    }
+  });
+})();
+
+/* ── 5. Heatmap ── */
+(() => {
+  const allVals = Object.values(heatData).flat();
+  const hMin = Math.min(...allVals), hMax = Math.max(...allVals);
+
+  function cellBg(v) {
+    const t = (v-hMin)/(hMax-hMin);
+    const R = Math.round(30 + t*70), G = Math.round(40 + t*60), B = Math.round(80 + t*170);
+    return `rgba(${R},${G},${B},${0.15+t*0.75})`;
+  }
+  function cellColor(v) {
+    const t = (v-hMin)/(hMax-hMin);
+    return t > 0.5 ? '#e2e8f0' : '#94a3b8';
+  }
+
+  const wrap = document.getElementById('heatmap');
+  const head = document.createElement('div');
+  head.className='heatrow';
+  head.innerHTML='<div class="hlabel"></div>'+MONTHS.map(m=>`<div class="hcell" style="color:#6b7280;height:20px;font-size:9px">${m}</div>`).join('');
+  wrap.appendChild(head);
+
+  Object.entries(heatData).forEach(([yr,vals]) => {
+    const row = document.createElement('div');
+    row.className='heatrow';
+    row.innerHTML=`<div class="hlabel">${yr}</div>`+vals.map(v=>`<div class="hcell" style="background:${cellBg(v)};color:${cellColor(v)}">${(Math.round(v/100)/10).toFixed(1)}K</div>`).join('');
+    wrap.appendChild(row);
+  });
+})();
+
+/* ── 6. Forecast table ── */
+(() => {
+  const prevUnits = [2270,...forecast6Units.slice(0,-1)];
+  const tbody = document.getElementById('ftbody');
+  forecast6Labels.forEach((lbl,i) => {
+    const units=forecast6Units[i], rev=forecast6Rev[i];
+    const lo=Math.round(units*0.90), hi=Math.round(units*1.10);
+    const prev=prevUnits[i], pct=Math.abs(Math.round((units-prev)/prev*100));
+    const up=units>=prev, cls=up?'trend-up':'trend-down', arrow=up?'▲':'▼';
+    tbody.innerHTML+=`<tr>
+      <td><strong style="color:var(--ink)">${lbl}</strong></td>
+      <td>${units.toLocaleString()}</td>
+      <td style="color:var(--green)">$${rev}K</td>
+      <td style="color:var(--ink3)">${lo.toLocaleString()}</td>
+      <td style="color:var(--ink3)">${hi.toLocaleString()}</td>
+      <td class="${cls}">${arrow} ${pct}%</td>
+    </tr>`;
+  });
+})();
+
+/* ── 7. Forecast chart ── */
+let fcChartInst = null;
+function buildForecastChart() {
+  if (fcChartInst) return;
+  fcChartInst = new Chart(document.getElementById('fcChart'), {
+    type:'line',
+    data:{
+      labels:forecast6Labels,
+      datasets:[
+        { label:'Upper bound', data:forecast6Units.map(v=>Math.round(v*1.10)),
+          borderColor:'rgba(99,102,241,0.2)', borderWidth:1, borderDash:[4,4],
+          pointRadius:0, tension:.4, backgroundColor:'rgba(99,102,241,0.06)', fill:'+1' },
+        { label:'Forecast units', data:forecast6Units,
+          borderColor:'#6366f1', borderWidth:2.5,
+          pointRadius:6, pointBackgroundColor:'#6366f1',
+          pointBorderColor:'rgba(13,17,35,0.9)', pointBorderWidth:2, tension:.4 },
+        { label:'Lower bound', data:forecast6Units.map(v=>Math.round(v*0.90)),
+          borderColor:'rgba(99,102,241,0.2)', borderWidth:1,
+          borderDash:[4,4], pointRadius:0, tension:.4 }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ ticks:{font:{size:11}}, grid:{display:false} },
+        y:{ ticks:{font:{size:10}}, grid:{color:gridColor} }
+      }
+    }
+  });
+}
+
+function switchForecastTab(tab, btn) {
+  document.querySelectorAll('#forecastTabs .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  if (tab==='table') {
+    document.getElementById('forecastTableWrap').style.display='';
+    document.getElementById('forecastChartWrap').style.display='none';
+  } else {
+    document.getElementById('forecastTableWrap').style.display='none';
+    document.getElementById('forecastChartWrap').style.display='';
+    buildForecastChart();
+  }
+}
+
+document.getElementById('genDate').textContent = new Date().toLocaleDateString('en-US',
+  {year:'numeric',month:'long',day:'numeric'});
+</script>
+</body>
+</html>
